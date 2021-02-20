@@ -1,8 +1,9 @@
-const fs = require('fs')
-//const data = JSON.parse(fs.readFileSync('BengaliDictionary.json'))
 const data = require('./BengaliDictionary.json');
+const slot = 16921;
 let primary_hash_array
-let a,b
+let perfect_hash_array
+let a, b
+let secondary_a, secondary_b
 const read_data = async () => {
     console.log(Object.keys(data).length);
     return Object.keys(data).length;
@@ -25,7 +26,7 @@ module.exports.read_data = async (req, res) => {
 }
 const word_to_number = async (word) => {
     let word_length = word.length;
-
+    word = word.toLowerCase();
     let int_word = 0;
     let mod = Math.pow(10, 12) + 1
     for (let i = 0; i < word.length; i++) {
@@ -36,20 +37,33 @@ const word_to_number = async (word) => {
         x = word.charCodeAt(i) - 97;
         int_word += ((Math.pow(26, word_length) % mod) * x) % mod
     }
-    return (int_word);
+    return (((a * int_word) + b) % slot);
+}
+const word_to_number_second = async (word) => {
+    let word_length = word.length;
+    word = word.toLowerCase();
+    let int_word = 0;
+    for (let i = 0; i < word.length; i++) {
+        word_length -= 1;
+        if (word[i] == ' ' || word[i] == '.' || word[i] == "'" || word[i] == '-') {
+            continue;
+        }
+        x = word.charCodeAt(i) - 96+1;
+        int_word += ((Math.pow(27, word_length) % 17033) * x) % 17033
+    }
+
+    return int_word;
 }
 const primary_hash = async () => {
     let elements = data.length
-    let slot=16921;
     primary_hash_array = new Array(slot)
     console.log(elements);
-    a=Math.floor((Math.random()*elements)%slot)+1;
-    b=Math.floor((Math.random()*elements)%slot)+1;
-    console.log(a+" "+b);
+    a = Math.floor((Math.random() * elements) % slot) + 1;
+    b = Math.floor((Math.random() * elements) % slot);
+    console.log(a + " " + b);
     for (let i = 0; i < elements; i++) {
         let word = data[i].en;
-        word = word.toLowerCase();
-        let number = ((a*await word_to_number(word))+b) % slot;
+        let number = await word_to_number(word)
         if (!primary_hash_array[number]) {
             primary_hash_array[number] = [data[i]];
         } else {
@@ -57,37 +71,45 @@ const primary_hash = async () => {
         }
 
     }
-    let two = 0,
-        three = 0,
-        four = 0,
-        five = 0,
-        six = 0,
-        seven = 0
-    for (let i = 0; i < elements; i++) {
-        //console.log(primary_hash_array[i]);
-        try {
-            if (primary_hash_array[i].length == 2) {
-                two++;
-            } else if (primary_hash_array[i].length == 3) {
-                three++;
-            } else if (primary_hash_array[i].length == 4) {
-                four++;
-            } else if (primary_hash_array[i].length == 5) {
-                five++;
-            } else if (primary_hash_array[i].length == 6) {
-                six++;
-            } else if (primary_hash_array[i].length == 7) {
-                seven++;
-            }
-        } catch {}
+}
+const secondary_hash = async () => {
+    perfect_hash_array = new Array(16912);
+    console.log(primary_hash_array.length);
+    secondary_a = 317
+    secondary_b = 3
+    flag = 0;
+    for (let i = 0; i < slot; i++) {
+        if (!primary_hash_array[i])
+            continue;
+        let elements_in_ith = primary_hash_array[i].length
+        if (elements_in_ith < 2) {
+            continue;
+        }
+        // if (true) {
+        //     console.log("elements "+elements_in_ith);
+
+
+        // }
+        let secondary_slot = Math.pow(elements_in_ith, 2);
+        perfect_hash_array[i] = new Array(secondary_slot)
+        for (let j = 0; j < elements_in_ith; j++) {
+            let int_word=await word_to_number_second(primary_hash_array[i][j].en)
+            // if(int_word){
+            //     console.log(primary_hash_array[i][j].en +"  "+int_word);
+            // }
+            let number = ((secondary_a * int_word) + secondary_b) % secondary_slot;
+            perfect_hash_array[i][number] = primary_hash_array[i][j];
+            // if (true) {
+            //     console.log("perfect");
+            //     console.log(int_word);
+            //     console.log(number)
+
+            // }
+        }
     }
-    console.log("two " + two);
-    console.log("three " + three);
-    console.log("four " + four);
-    console.log("five " + five);
-    console.log("six " + six);
-    console.log("seven " + seven);
-    //console.log(primary_hash_array[0]);
+}
+module.exports.secondary_hash = async () => {
+    await secondary_hash()
 }
 module.exports.primary_hash = async (req, res) => {
 
@@ -95,12 +117,36 @@ module.exports.primary_hash = async (req, res) => {
     return
 
 }
-const print_test=async ()=>{
-    console.log(a);
-    console.log(b);
-}
-module.exports.print_test = async (req, res) => {
+const get_words = async req =>{
+    let word = req.query.word;
+    let primary_table = await word_to_number(word);
+    console.log(word);
+    console.log(primary_table);
+    if(!perfect_hash_array[primary_table]){
+        return "Not found"
+    }
+    let secondary_slot=perfect_hash_array[primary_table].length;
 
-    await print_test()
+    console.log(perfect_hash_array[primary_table]);
+    if(secondary_slot>1){
+        let int_word = await word_to_number_second(word);
+        let secondary_table=((secondary_a * int_word) + secondary_b) % secondary_slot;
+        if(perfect_hash_array[primary_table][secondary_table].en==word){
+            return perfect_hash_array[primary_table][secondary_table]
+        }else{
+            return "Not found"
+        }
+    }else{
+        if(perfect_hash_array[primary_table].en==word){
+            return perfect_hash_array[primary_table]
+        }else{
+            return "Not found"
+        }
+    }
+}
+module.exports.get_words = async (req, res) => {
+
+    const result = await get_words(req)
+    res.send(result)
 
 }

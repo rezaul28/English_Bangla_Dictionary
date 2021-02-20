@@ -7,7 +7,7 @@ app.listen(5000,async ()=>{
     console.log(new Date());
     await controller.store_data();
     await controller.primary_hash();
-    await controller.print_test()
+    await controller.secondary_hash()
 
     console.log(new Date());
 
