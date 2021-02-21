@@ -2,6 +2,9 @@ const express = require('express')
 const app = express()
 const route = require("./route");
 const controller = require("./controller")
+var cors = require('cors')
+app.use(cors())
+
 app.use(route)
 app.listen(5000,async ()=>{
     console.log(new Date());
