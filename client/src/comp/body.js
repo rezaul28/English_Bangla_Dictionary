@@ -26,6 +26,7 @@ function Body(probs) {
        return ( <p><b>Example</b><br></br>{abc}</p>)
     }
     if(probs.probs.bn){
+      console.log(probs.probs.bn);
       return (
         <div className="body">
           <p><b>{probs.probs.en} : {probs.probs.bn}</b></p>

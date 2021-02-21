@@ -23,6 +23,7 @@ function Input() {
       setdata(abc);
     }catch{
         abc.en = "Word not found"
+        setdata(abc);
       }
       console.log(data);
       console.log(abc);
