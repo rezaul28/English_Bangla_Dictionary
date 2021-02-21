@@ -1,7 +1,9 @@
 .header {
     background-color: rgb(61, 174, 219);
-    width: 30vw;
-    height: 100vh;
-    padding: 2rem 2rem 0 0;
-    color : white
+    width: 100%;
+    height: 10vh;
+    padding: 2rem 0 2rem 0;
+    margin: auto;
+    color : white;
+    font-size: 25px;
 }
