@@ -14,7 +14,7 @@ function Input() {
       en : ""
     }
     event.preventDefault();
-    try{const data = await fetch('http://localhost:5000/get_word?word='+word, {
+    try{const data = await fetch('https://polar-springs-98937.herokuapp.com/get_word?word='+word, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -25,6 +25,7 @@ function Input() {
         abc.en = "Word not found"
         setdata(abc);
       }
+      setWord("");
       console.log(data);
       console.log(abc);
       
@@ -38,6 +39,7 @@ function Input() {
               name="input"
                placeholder="Type English word here"
                onChange ={setword}
+               value = {word}
             ></input><br></br><br></br>
             <input 
               type="submit" 

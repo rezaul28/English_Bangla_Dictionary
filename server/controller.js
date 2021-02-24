@@ -8,7 +8,7 @@ let perfect_hash_array
 let a, b
 let secondary_a, secondary_b
 const read_data = async () => {
-    console.log(Object.keys(data).length);
+    //console.log(Object.keys(data).length);
     return Object.keys(data).length;
 
 }
@@ -35,7 +35,7 @@ const word_to_number = async (word) => {
     for (let i = 0; i < word.length; i++) {
         word_length -= 1;
         if (word[i] == ' ' || word[i] == '.' || word[i] == "'" || word[i] == '-') {
-            console.log(word);
+            //console.log(word);
             continue;
         }
         x = word.charCodeAt(i) - 97;
@@ -74,11 +74,11 @@ const primary_hash = async () => {
             count++
         }
     }
-    console.log("Primary "+count);
+    //console.log("Primary "+count);
 }
 const secondary_hash = async () => {
     perfect_hash_array = new Array(16912);
-    console.log(primary_hash_array.length);
+    //console.log(primary_hash_array.length);
     secondary_a = Math.floor((Math.random() * Math.pow(10,8)) % second_prime) + 1;
     secondary_b = Math.floor((Math.random() * Math.pow(10,8)) % second_prime);
     count = 0;
@@ -114,7 +114,7 @@ const secondary_hash = async () => {
             // }
         }
     }
-    console.log(count);
+    //console.log(count);
 }
 module.exports.secondary_hash = async () => {
     await secondary_hash()
@@ -129,13 +129,13 @@ const get_words = async req =>{
     let word = req.query.word;
     let primary_table = await word_to_number(word);
     console.log(word);
-    console.log(primary_table);
+    //console.log(primary_table);
     if(!perfect_hash_array[primary_table]){
         return "Not found"
     }
     let secondary_slot=perfect_hash_array[primary_table].length;
 
-    console.log(secondary_slot);
+    //console.log(secondary_slot);
     if(secondary_slot>1){
         let int_word = await word_to_number_second(word);
         let secondary_table=(((secondary_a * int_word) + secondary_b)%second_prime) % secondary_slot;

@@ -12,7 +12,7 @@ app.listen(5000,async ()=>{
     await controller.primary_hash();
     await controller.secondary_hash()
 
-    console.log(new Date());
+    //console.log(new Date());
 
     console.log("Server Started");
 });
