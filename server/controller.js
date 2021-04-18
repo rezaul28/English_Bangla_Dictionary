@@ -82,39 +82,28 @@ const secondary_hash = async () => {
     secondary_a = Math.floor((Math.random() * Math.pow(10,8)) % second_prime) + 1;
     secondary_b = Math.floor((Math.random() * Math.pow(10,8)) % second_prime);
     count = 0;
+    let flag = false;
+    let cell ;
     for (let i = 0; i < slot; i++) {
         if (!primary_hash_array[i])
             continue;
         let elements_in_ith = primary_hash_array[i].length
-        if (elements_in_ith < 2) {
+        if (elements_in_ith ==1) {
+            perfect_hash_array[i]=primary_hash_array[i][0];
             continue;
         }
-        // if (true) {
-        //     console.log("elements "+elements_in_ith);
-
-
-        // }
         let secondary_slot = Math.pow(elements_in_ith, 2);
         perfect_hash_array[i] = new Array(secondary_slot)
         for (let j = 0; j < elements_in_ith; j++) {
             let int_word=await word_to_number_second(primary_hash_array[i][j].en)
-            // if(int_word){
-            //     console.log(primary_hash_array[i][j].en +"  "+int_word);
-            // }
             let number = (((secondary_a * int_word) + secondary_b)%second_prime) % secondary_slot;
             if(perfect_hash_array[i][number]){
                 count++;
             }
             perfect_hash_array[i][number] = primary_hash_array[i][j];
-            // if (true) {
-            //     console.log("perfect");
-            //     console.log(int_word);
-            //     console.log(number)
-
-            // }
         }
     }
-    //console.log(count);
+    console.log(perfect_hash_array[cell]);
 }
 module.exports.secondary_hash = async () => {
     await secondary_hash()
